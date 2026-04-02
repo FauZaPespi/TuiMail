@@ -1,4 +1,6 @@
 ﻿using Terminal.Gui;
+using TuiMail.Connector;
+using TuiMail.Logger;
 
 Application.Init();
 
@@ -99,6 +101,27 @@ btnLogin.Clicked += () =>
     else
     {
         MessageBox.Query("TuiMail", $"Logging in as {user}...", "Continue");
+        try
+        {
+            Logger.GetInstance().Debug("106");
+            var imapClient = ProtonBridgeConnect.GetInstance().Connect(user, pass);
+            if (imapClient != null && imapClient.IsAuthenticated)
+            {
+                Logger.GetInstance().Debug("109");
+                MessageBox.Query("TuiMail", $"Logged as {user}", "Continue");
+                Logger.GetInstance().Debug("111");
+            }
+            else
+            {
+                Logger.GetInstance().Debug("Connection failed or not authenticated");
+                MessageBox.ErrorQuery("Error", "Failed to connect or authenticate", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.ErrorQuery(ex.Message, "Error", "Continue");
+            Logger.GetInstance().Debug(ex.Message);
+        }
     }
 };
 
